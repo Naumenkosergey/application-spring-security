@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import static by.naumenko.util.HtmlPages.USER;
+
 @Controller
 //@RequestMapping("/user")
 public class UserController {
@@ -14,6 +16,6 @@ public class UserController {
     public String user(@CurrentSecurityContext(expression = "authentication.principal") User principal,
                        Model model) {
         model.addAttribute("user", principal);
-        return "user-info";
+        return USER;
     }
 }

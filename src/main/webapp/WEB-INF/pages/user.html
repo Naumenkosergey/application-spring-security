@@ -6,8 +6,12 @@
     <title></title>
 </head>
 <body>
-<div>
-    <h1>HELLO  user</h1>
+<div style="margin: 100px 200px;">
+    <h1>Пользователь <span th:text="${user.username}"/></h1>
+    <h3>Имя: <span th:text="${user.name}"/></h3>
+    <h3>фамилия: <span th:text="${user.surname}"/></h3>
+    <h3>e-mail: <span th:text="${user.email}"/></h3>
+    <h3> Roles: <span th:text="${user.authorities}"/></h3>
 </div>
 </body>
 </html>

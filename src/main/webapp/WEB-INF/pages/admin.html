@@ -7,7 +7,34 @@
 </head>
 <body>
 <div>
-    <h1>HELLO Admin</h1>
+    <h1>HELLO Admin <span th:text="${principal.username}"/></h1>
+    <table th:border="3px" th:cellpadding="5px" th:cellspacing="0px">
+        <tr>
+            <th>id</th>
+            <th>login</th>
+            <th>email</th>
+            <th>name</th>
+            <th>surname</th>
+            <th>roles</th>
+        </tr>
+        <tr th:each="user:${listUser}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.name}"></td>
+            <td th:text="${user.surname}"></td>
+            <td th:text="${user.authorities}"></td>
+            <td style="background: lime"><a th:href="@{/admin/{id}/edit(id=${user.id})}">править</a></td>
+            <td style="background: red"><a th:href="@{/admin/{id}/remove(id=${user.id})}">удалить</a></td>
+            <td style="background: aqua"><a target="_blank" th:href="@{admin/user/{id}/info(id=${user.id})}">details</a>
+            </td>
+        </tr>
+    </table>
+
+    <a th:href="@{/admin/new}" type="button"><h1>User Add</h1></a>
+    <a th:href="@{/logout}">logout</a><br>
+    <a th:href="@{/signin?logout}">logout</a>
+
 </div>
 </body>
 </html>

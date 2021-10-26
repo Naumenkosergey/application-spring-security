@@ -1,9 +1,7 @@
 package by.naumenko.config;
 
 
-import by.naumenko.config.handler.LoginFailHandler;
 import by.naumenko.config.handler.LoginSuccessHandler;
-import by.naumenko.config.handler.LogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -23,45 +22,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userService;
     private final LoginSuccessHandler loginSuccessHandler;
-    private final LoginFailHandler loginFailHandler;
-    private final LogoutSuccessHandler logoutSuccessHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.
                 authorizeRequests()
-                    .antMatchers("/admin").hasAuthority("ADMIN")
-                    .antMatchers("/user").hasAnyAuthority("ADMIN", "USER")
-                    .antMatchers("/hello").permitAll()
-                    .anyRequest().authenticated()
+                .antMatchers("/signin", "/signup").anonymous()
+                .antMatchers("/admin").hasAuthority("ADMIN")
+                .antMatchers("/user").hasAnyAuthority("ADMIN", "USER")
+                .antMatchers("/home").permitAll()
+                .anyRequest().authenticated()
                 .and()
-                    .formLogin()
-                    .successHandler(loginSuccessHandler)
-                    .failureHandler(loginFailHandler)
-                    .usernameParameter("login")
-                    .passwordParameter("password");
+                .formLogin()
+                .loginPage("/signin")
+                .successHandler(loginSuccessHandler);
 
-
-//        http.logout()
-//                // разрешаем делать логаут всем
-//                .permitAll()
-//                // указываем URL логаута
-//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                // указываем URL при удачном логауте
-//                .clearAuthentication(true)
-//                .deleteCookies("JSESSIONID")
-//                .logoutSuccessUrl("/login?logout")
-//                .logoutSuccessHandler(logoutSuccessHandler)
-//                //выклчаем кроссдоменную секьюрность (на этапе обучения неважна)
-//                .and().csrf().disable();
-
-//        http
-//                // делаем страницу регистрации недоступной для авторизированных пользователей
-//                .authorizeRequests()
-//                //страницы аутентификаци доступна всем
-//                .antMatchers("/login").anonymous()
-//                // защищенные URL
-//                .antMatchers("/hello").access("hasAnyRole('ADMIN')").anyRequest().authenticated();
+        http.logout()
+                .permitAll()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessUrl("/signin?logout");
     }
 
     @Bean
@@ -70,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(authProvider());
     }
 
@@ -81,9 +62,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         authProvider.setPasswordEncoder(encoder());
         return authProvider;
     }
-
-//    @Autowired
-//    public void configureGlobalSecurity(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userService);
-//    }
 }

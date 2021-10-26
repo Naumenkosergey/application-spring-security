@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Data
@@ -18,7 +19,7 @@ import java.util.Set;
 @Table(name = "user", schema = "security_storage")
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "login")
+    @Column(name = "login", unique = true)
     private String username;
     @Column(name = "name")
     private String name;
@@ -39,11 +40,31 @@ public class User extends BaseEntity implements UserDetails {
     private Set<Role> authorities = new HashSet<>();
 
     @Transient
-    private boolean accountNonExpired=true;
+    private boolean accountNonExpired = true;
     @Transient
-    private boolean accountNonLocked=true;
+    private boolean accountNonLocked = true;
     @Transient
-    private boolean credentialsNonExpired=true;
+    private boolean credentialsNonExpired = true;
     @Transient
-    private boolean enabled=true;
+    private boolean enabled = true;
+
+    public boolean hasAuthorities(int roleId) {
+        if (authorities == null || authorities.size() == 0) {
+            return false;
+        }
+        Optional<Role> findRole = authorities.stream()
+                .filter(role -> roleId == role.getId())
+                .findFirst();
+        return findRole.isPresent();
+    }
+
+    public boolean hasAuthorities(String roleName) {
+        if (authorities == null || authorities.size() == 0) {
+            return false;
+        }
+        Optional<Role> findRole = authorities.stream()
+                .filter(role -> roleName.equals(role.getAuthority()))
+                .findFirst();
+        return findRole.isPresent();
+    }
 }
